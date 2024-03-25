@@ -18,6 +18,6 @@ public interface ModelService {
     GetModelResponse getById(int id);
     List<GetModelListResponse> getAll();
 
-    Model getByModelId(int id);
+
     void delete(int id);
 }

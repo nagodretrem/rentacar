@@ -7,18 +7,21 @@ import com.etiya.rentacar.business.dtos.responses.brand.CreatedBrandResponse;
 import com.etiya.rentacar.business.dtos.responses.brand.GetBrandListResponse;
 import com.etiya.rentacar.business.dtos.responses.brand.GetBrandResponse;
 import com.etiya.rentacar.business.dtos.responses.brand.UpdatedBrandResponse;
+import com.etiya.rentacar.core.utilities.mapping.ModelMapperService;
 import com.etiya.rentacar.dataAccess.abstracts.BrandRepository;
 import com.etiya.rentacar.entities.Brand;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @AllArgsConstructor
 @Service
 public class BrandManager implements BrandService {
     private final BrandRepository brandRepository;
+    private final ModelMapperService modelMapperService;
 
 
 
@@ -26,15 +29,11 @@ public class BrandManager implements BrandService {
     public CreatedBrandResponse add(CreateBrandRequest createBrandRequest) {
         //todo: business rules
 
-        Brand brand = new Brand();
-        brand.setName(createBrandRequest.getName());
+        Brand brand = this.modelMapperService.forRequest().map(createBrandRequest, Brand.class);
 
         brandRepository.save(brand);
 
-        CreatedBrandResponse response = new CreatedBrandResponse();
-        response.setId(brand.getId());
-        response.setName(brand.getName());
-        response.setCreatedDate(brand.getCreatedDate());
+        CreatedBrandResponse response = this.modelMapperService.forResponse().map(brand, CreatedBrandResponse.class);
 
         return response;
 
@@ -46,12 +45,10 @@ public class BrandManager implements BrandService {
         brandToUpdate.setName(brand.getName());
 
 
+
         brandRepository.save(brandToUpdate);
 
-        UpdatedBrandResponse response = new UpdatedBrandResponse();
-        response.setId(brandToUpdate.getId());
-        response.setName(brandToUpdate.getName());
-        response.setUpdatedDate(brandToUpdate.getUpdatedDate());
+        UpdatedBrandResponse response = modelMapperService.forResponse().map(brandToUpdate, UpdatedBrandResponse.class);
 
         return response;
 
@@ -60,7 +57,10 @@ public class BrandManager implements BrandService {
     @Override
     public List<GetBrandListResponse> getAll() {
         List<Brand> brands = brandRepository.findAll();
-        List<GetBrandListResponse> response = brands.stream().map(brand -> new GetBrandListResponse(brand.getId(), brand.getName())).toList();
+
+        List<GetBrandListResponse> response = brands.stream().map(brand ->
+                this.modelMapperService.forResponse()
+                        .map(brand, GetBrandListResponse.class)).collect(Collectors.toList());
 
         return response;
 
@@ -69,19 +69,12 @@ public class BrandManager implements BrandService {
     @Override
     public GetBrandResponse getById(int id) {
         Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Brand not found"));
-        GetBrandResponse response = new GetBrandResponse();
-        response.setId(brand.getId());
-        response.setName(brand.getName());
+        GetBrandResponse response = this.modelMapperService.forResponse().map(brand, GetBrandResponse.class);
         return response;
 
     }
 
-    @Override
-    public Brand getByBrandId(int id) {
 
-        Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Brand not found"));
-        return brand;
-    }
 
     @Override
     public void delete(int id) {

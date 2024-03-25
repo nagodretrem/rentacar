@@ -20,13 +20,12 @@ import java.util.List;
 public class CarManager implements CarService {
 
     private final CarRepository carRepository;
-    private final ModelService modelService;
 
     @Override
     public CreatedCarResponse add(CreateCarRequest createCarRequest) {
         Car car = new Car();
 
-        car.setModel(modelService.getByModelId(createCarRequest.getModelId()));
+
         car.setPlate(createCarRequest.getPlate());
         car.setState(createCarRequest.getState());
         car.setDailyPrice(createCarRequest.getDailyPrice());
@@ -51,7 +50,7 @@ public class CarManager implements CarService {
     @Override
     public UpdatedCarResponse update(UpdateCarRequest updateCarRequest) {
         Car car = carRepository.findById(updateCarRequest.getId()).orElseThrow(() -> new IllegalArgumentException("Car not found"));
-        car.setModel(modelService.getByModelId(updateCarRequest.getModelId()));
+
         car.setPlate(updateCarRequest.getPlate());
         car.setState(updateCarRequest.getState());
         car.setDailyPrice(updateCarRequest.getDailyPrice());
@@ -87,7 +86,7 @@ public class CarManager implements CarService {
     @Override
     public List<GetCarListResponse> getAll() {
         List<Car> cars = carRepository.findAll();
-        List<GetCarListResponse> response = cars.stream().map(car -> new GetCarListResponse(car.getId(),car.getModelYear(), car.getPlate(),   car.getState(), car.getDailyPrice(), car.getModel().getId())).toList();
+        List<GetCarListResponse> response = cars.stream().map(car -> new GetCarListResponse(car.getId(),car.getModelYear(), car.getPlate(),   car.getState(), car.getDailyPrice(), car.getModel().getId(), car.getModel().getName())).toList();
         return response;
     }
 

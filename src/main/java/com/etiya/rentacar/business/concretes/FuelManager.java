@@ -63,12 +63,6 @@ public class FuelManager implements FuelService {
         return response;
     }
 
-    @Override
-    public Fuel getByFuelId(int id) {
-
-        Fuel fuel = fuelRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Fuel not found"));
-        return fuel;
-    }
 
     @Override
     public void delete(int id) {

@@ -50,12 +50,6 @@ public class TransmissionManager implements TransmissionService {
         return new GetTranmissionResponse(transmission.getId(),transmission.getName());
     }
 
-    @Override
-    public Transmission getByTransmissionId(int id) {
-
-        Transmission transmission = transmissionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Transmission not found"));
-        return transmission;
-    }
 
     @Override
     public void delete(int id) {

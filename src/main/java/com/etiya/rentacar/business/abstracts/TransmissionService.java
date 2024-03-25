@@ -20,7 +20,7 @@ public interface TransmissionService {
 
     GetTranmissionResponse getById(int id);
 
-    Transmission getByTransmissionId(int id);
+
 
     void delete(int id);
 }

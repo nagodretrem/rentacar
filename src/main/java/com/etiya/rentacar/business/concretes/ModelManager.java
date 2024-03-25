@@ -28,23 +28,16 @@ import java.util.List;
 public class ModelManager implements ModelService {
 
     private ModelRepository modelRepository;
-    private FuelService fuelService;
-    private TransmissionService transmissionService;
-    private BrandService brandService;
 
 
     @Override
     public CreatedModelResponse add(CreateModelRequest createModelRequest) {
         Model model = new Model();
 
-        Fuel fuel = fuelService.getByFuelId(createModelRequest.getFuelId());
-        Transmission transmission = transmissionService.getByTransmissionId(createModelRequest.getTransmissionId());
-        Brand brand = brandService.getByBrandId(createModelRequest.getBrandId());
+
 
         model.setName(createModelRequest.getName());
-        model.setFuel(fuel);
-        model.setTransmission(transmission);
-        model.setBrand(brand);
+
 
         modelRepository.save(model);
 
@@ -62,14 +55,10 @@ public class ModelManager implements ModelService {
     @Override
     public UpdatedModelResponse update(UpdateModelRequest updateModelRequest) {
         Model model = modelRepository.findById(updateModelRequest.getId()).orElseThrow(() -> new IllegalArgumentException("Model not found"));
-        Fuel fuel = fuelService.getByFuelId(updateModelRequest.getFuelId());
-        Transmission transmission = transmissionService.getByTransmissionId(updateModelRequest.getTransmissionId());
-        Brand brand = brandService.getByBrandId(updateModelRequest.getBrandId());
+
 
         model.setName(updateModelRequest.getName());
-        model.setFuel(fuel);
-        model.setTransmission(transmission);
-        model.setBrand(brand);
+
         modelRepository.save(model);
 
 
@@ -104,11 +93,7 @@ public class ModelManager implements ModelService {
         return response;
     }
 
-    @Override
-    public Model getByModelId(int id) {
-        Model model = modelRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Model not found"));
-        return model;
-    }
+
 
     @Override
     public void delete(int id) {
