@@ -1,5 +1,6 @@
 package com.etiya.rentacar.business.dtos.responses.car;
 
+import com.etiya.rentacar.business.dtos.responses.model.GetModelResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,5 @@ public class GetCarListResponse {
     private String plate;
     private int state;
     private double dailyPrice;
-    private int modelId;
-    private String modelName;
+    private GetModelResponse model;
 }

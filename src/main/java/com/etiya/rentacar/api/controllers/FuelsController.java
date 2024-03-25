@@ -7,6 +7,7 @@ import com.etiya.rentacar.business.dtos.responses.fuel.CreatedFuelResponse;
 import com.etiya.rentacar.business.dtos.responses.fuel.GetFuelListResponse;
 import com.etiya.rentacar.business.dtos.responses.fuel.GetFuelResponse;
 import com.etiya.rentacar.business.dtos.responses.fuel.UpdatedFuelResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +33,12 @@ public class FuelsController {
 
    @PostMapping
    @ResponseStatus(HttpStatus.CREATED)
-   public CreatedFuelResponse add(@RequestBody CreateFuelRequest createFuelRequest){
+   public CreatedFuelResponse add(@RequestBody @Valid CreateFuelRequest createFuelRequest){
        return fuelService.add(createFuelRequest);
    }
 
    @PutMapping
-   public UpdatedFuelResponse update(@RequestBody UpdateFuelRequest updateFuelRequest){
+   public UpdatedFuelResponse update(@RequestBody @Valid UpdateFuelRequest updateFuelRequest){
        return fuelService.update(updateFuelRequest);
    }
 

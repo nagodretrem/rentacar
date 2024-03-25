@@ -7,47 +7,54 @@ import com.etiya.rentacar.business.dtos.responses.transmission.CreatedTransmissi
 import com.etiya.rentacar.business.dtos.responses.transmission.GetTranmissionListResponse;
 import com.etiya.rentacar.business.dtos.responses.transmission.GetTranmissionResponse;
 import com.etiya.rentacar.business.dtos.responses.transmission.UpdatedTransmissionResponse;
+import com.etiya.rentacar.core.utilities.mapping.ModelMapperService;
 import com.etiya.rentacar.dataAccess.abstracts.TransmissionRepository;
 import com.etiya.rentacar.entities.Transmission;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @AllArgsConstructor
 @Service
 public class TransmissionManager implements TransmissionService {
     private TransmissionRepository transmissionRepository;
+    private ModelMapperService modelMapperService;
     @Override
     public CreatedTransmissionResponse add(CreateTranmissionRequest createTransmissionRequest) {
-        Transmission transmission = new Transmission();
-        transmission.setName(createTransmissionRequest.getName());
+        Transmission transmission = this.modelMapperService.forRequest().map(createTransmissionRequest, Transmission.class);
         transmissionRepository.save(transmission);
-        return new CreatedTransmissionResponse(transmission.getId(),transmission.getName(),transmission.getCreatedDate());
+
+        return this.modelMapperService.forResponse().map(transmission, CreatedTransmissionResponse.class);
 
     }
 
     @Override
     public UpdatedTransmissionResponse update(UpdateTransmissionRequest updateTransmissionRequest) {
-        Transmission transmission = transmissionRepository.findById(updateTransmissionRequest.getId()).orElseThrow(() -> new IllegalArgumentException("Transmission not found"));
-        transmission.setName(updateTransmissionRequest.getName());
-        transmissionRepository.save(transmission);
-        return new UpdatedTransmissionResponse(transmission.getId(),transmission.getName(),transmission.getUpdatedDate());
+        Transmission existingTransmission = transmissionRepository.findById(updateTransmissionRequest.getId()).orElseThrow(() -> new IllegalArgumentException("Transmission not found"));
 
+        modelMapperService.forRequest().map(updateTransmissionRequest, existingTransmission);
+
+        Transmission updatedTransmission =this.transmissionRepository.save(existingTransmission);
+
+        return this.modelMapperService.forResponse().map(updatedTransmission, UpdatedTransmissionResponse.class);
     }
 
     @Override
     public List<GetTranmissionListResponse> getAll() {
         List<Transmission> transmissions = transmissionRepository.findAll();
-        List<GetTranmissionListResponse>  response = transmissions.stream().map(transmission -> new GetTranmissionListResponse(transmission.getId(),transmission.getName(),transmission.getCreatedDate())).toList();
 
-        return response;
+        return transmissions.stream()
+                .map(transmission -> this.modelMapperService.forResponse()
+                        .map(transmission, GetTranmissionListResponse.class)).collect(Collectors.toList());
     }
 
     @Override
     public GetTranmissionResponse getById(int id) {
 
         Transmission transmission = transmissionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Transmission not found"));
-        return new GetTranmissionResponse(transmission.getId(),transmission.getName());
+        return this.modelMapperService.forResponse().map(transmission, GetTranmissionResponse.class);
     }
 
 

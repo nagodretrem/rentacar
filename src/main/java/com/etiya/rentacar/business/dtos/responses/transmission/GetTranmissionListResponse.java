@@ -15,6 +15,6 @@ public class GetTranmissionListResponse {
 
     private String name;
 
-    private LocalDateTime createdDate;
+
 
 }

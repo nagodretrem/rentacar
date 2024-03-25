@@ -8,86 +8,56 @@ import com.etiya.rentacar.business.dtos.responses.car.CreatedCarResponse;
 import com.etiya.rentacar.business.dtos.responses.car.GetCarListResponse;
 import com.etiya.rentacar.business.dtos.responses.car.GetCarResponse;
 import com.etiya.rentacar.business.dtos.responses.car.UpdatedCarResponse;
+import com.etiya.rentacar.core.utilities.mapping.ModelMapperService;
 import com.etiya.rentacar.dataAccess.abstracts.CarRepository;
 import com.etiya.rentacar.entities.Car;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class CarManager implements CarService {
 
     private final CarRepository carRepository;
+    private ModelMapperService modelMapperService;
 
     @Override
     public CreatedCarResponse add(CreateCarRequest createCarRequest) {
-        Car car = new Car();
-
-
-        car.setPlate(createCarRequest.getPlate());
-        car.setState(createCarRequest.getState());
-        car.setDailyPrice(createCarRequest.getDailyPrice());
-        car.setModelYear(createCarRequest.getModelYear());
+        Car car = this.modelMapperService.forRequest().map(createCarRequest, Car.class);
 
         carRepository.save(car);
 
-        CreatedCarResponse response = new CreatedCarResponse();
-        response.setId(car.getId());
-        response.setModelYear(car.getModelYear());
-        response.setPlate(car.getPlate());
-        response.setState(car.getState());
-        response.setDailyPrice(car.getDailyPrice());
-        response.setModelId(car.getModel().getId());
-        response.setCreatedDate(car.getCreatedDate());
-
-        return response;
-
-
+        return this.modelMapperService.forResponse().map(car, CreatedCarResponse.class);
     }
 
     @Override
     public UpdatedCarResponse update(UpdateCarRequest updateCarRequest) {
-        Car car = carRepository.findById(updateCarRequest.getId()).orElseThrow(() -> new IllegalArgumentException("Car not found"));
+        Car existingCar = carRepository.findById(updateCarRequest.getId()).orElseThrow(() -> new IllegalArgumentException("Car not found"));
 
-        car.setPlate(updateCarRequest.getPlate());
-        car.setState(updateCarRequest.getState());
-        car.setDailyPrice(updateCarRequest.getDailyPrice());
-        car.setModelYear(updateCarRequest.getModelYear());
-        carRepository.save(car);
+        modelMapperService.forRequest().map(updateCarRequest, existingCar);
 
-        UpdatedCarResponse response = new UpdatedCarResponse();
-        response.setId(car.getId());
-        response.setModelYear(car.getModelYear());
-        response.setPlate(car.getPlate());
-        response.setState(car.getState());
-        response.setDailyPrice(car.getDailyPrice());
-        response.setModelId(car.getModel().getId());
-        response.setUpdatedDate(car.getUpdatedDate());
+        Car updatedCar = carRepository.save(existingCar);
 
-        return response;
+        return this.modelMapperService.forResponse().map(updatedCar, UpdatedCarResponse.class);
 
     }
 
     @Override
     public GetCarResponse getById(int id) {
         Car car = carRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Car not found"));
-        GetCarResponse response = new GetCarResponse();
-        response.setId(car.getId());
-        response.setModelYear(car.getModelYear());
-        response.setPlate(car.getPlate());
-        response.setState(car.getState());
-        response.setDailyPrice(car.getDailyPrice());
-        response.setModelId(car.getModel().getId());
-        return response;
+
+        return this.modelMapperService.forResponse().map(car, GetCarResponse.class);
     }
 
     @Override
     public List<GetCarListResponse> getAll() {
         List<Car> cars = carRepository.findAll();
-        List<GetCarListResponse> response = cars.stream().map(car -> new GetCarListResponse(car.getId(),car.getModelYear(), car.getPlate(),   car.getState(), car.getDailyPrice(), car.getModel().getId(), car.getModel().getName())).toList();
-        return response;
+        return cars.stream()
+                .map(car -> this.modelMapperService.forResponse()
+                        .map(car, GetCarListResponse.class)).collect(Collectors.toList());
     }
 
     @Override

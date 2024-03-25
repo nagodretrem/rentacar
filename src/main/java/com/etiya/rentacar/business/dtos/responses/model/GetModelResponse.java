@@ -1,5 +1,8 @@
 package com.etiya.rentacar.business.dtos.responses.model;
 
+import com.etiya.rentacar.business.dtos.responses.brand.GetBrandResponse;
+import com.etiya.rentacar.business.dtos.responses.fuel.GetFuelResponse;
+import com.etiya.rentacar.business.dtos.responses.transmission.GetTranmissionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,10 +16,10 @@ public class GetModelResponse {
 
     private String name;
 
-    private int brandId;
+    private GetBrandResponse brand;
 
-    private int fuelId;
+    private GetFuelResponse fuel;
 
-    private int transmissionId;
+    private GetTranmissionResponse transmission;
 
 }

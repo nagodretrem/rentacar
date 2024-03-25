@@ -27,30 +27,23 @@ public class BrandManager implements BrandService {
 
     @Override
     public CreatedBrandResponse add(CreateBrandRequest createBrandRequest) {
-        //todo: business rules
 
         Brand brand = this.modelMapperService.forRequest().map(createBrandRequest, Brand.class);
-
         brandRepository.save(brand);
 
-        CreatedBrandResponse response = this.modelMapperService.forResponse().map(brand, CreatedBrandResponse.class);
-
-        return response;
+        return this.modelMapperService.forResponse().map(brand, CreatedBrandResponse.class);
 
     }
 
     @Override
-    public UpdatedBrandResponse update(UpdateBrandRequest brand) {
-        Brand brandToUpdate = brandRepository.findById(brand.getId()).orElseThrow(() -> new IllegalArgumentException("Brand not found"));
-        brandToUpdate.setName(brand.getName());
+    public UpdatedBrandResponse update(UpdateBrandRequest updateBrandRequest) {
+        Brand existingBrand = brandRepository.findById(updateBrandRequest.getId()).orElseThrow(() -> new IllegalArgumentException("Brand not found"));
 
+        modelMapperService.forRequest().map(updateBrandRequest, existingBrand);
 
+        Brand updatedBrand = brandRepository.save(existingBrand);
 
-        brandRepository.save(brandToUpdate);
-
-        UpdatedBrandResponse response = modelMapperService.forResponse().map(brandToUpdate, UpdatedBrandResponse.class);
-
-        return response;
+        return this.modelMapperService.forResponse().map(updatedBrand, UpdatedBrandResponse.class);
 
     }
 
@@ -58,19 +51,17 @@ public class BrandManager implements BrandService {
     public List<GetBrandListResponse> getAll() {
         List<Brand> brands = brandRepository.findAll();
 
-        List<GetBrandListResponse> response = brands.stream().map(brand ->
-                this.modelMapperService.forResponse()
+        return brands.stream()
+                .map(brand -> this.modelMapperService.forResponse()
                         .map(brand, GetBrandListResponse.class)).collect(Collectors.toList());
-
-        return response;
 
     }
 
     @Override
     public GetBrandResponse getById(int id) {
         Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Brand not found"));
-        GetBrandResponse response = this.modelMapperService.forResponse().map(brand, GetBrandResponse.class);
-        return response;
+
+        return this.modelMapperService.forResponse().map(brand, GetBrandResponse.class);
 
     }
 
